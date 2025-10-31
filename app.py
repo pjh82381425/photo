@@ -1,4 +1,26 @@
 from flask import *
+import cv2
+
+app = Flask(__name__)
+
+def generate_frames():
+    cap = cv2.VideoCapture(1)
+    print('카메라 연결 완료')
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        else:
+            # 좌우 반전
+            frame = cv2.flip(frame, 1)
+            # 프레임을 JPEG 형식으로 인코딩
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+
+            # 멀티파트 메시지 형식으로 프레임 생성
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 app = Flask(__name__)
 
@@ -43,15 +65,21 @@ def home():
 def capture():
     return render_template("photo.html")
 
-@app.route('/select')
+@app.route('/video')
+def video():
+    # 비디오 스트리밍을 위한 Response 객체 생성
+    return Response(generate_frames(), 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/select') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def select():
     return render_template('select.html')
 
-@app.route('/edit')
+@app.route('/edit') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def edit():
     return render_template('edit.html')
 
-@app.route('/result')
+@app.route('/result') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def result():
     return render_template('result.html')
 
