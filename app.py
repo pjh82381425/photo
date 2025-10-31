@@ -1,9 +1,15 @@
 from flask import *
 import cv2
+import os
 
 app = Flask(__name__)
 
+base = os.path.join(app.root_path, "static", "captures")
+os.makedirs(base, exist_ok=True)
+save, ret, frame = None, None, None
+
 def generate_frames():
+    global ret, frame
     cap = cv2.VideoCapture(1)
     print('카메라 연결 완료')
 
@@ -16,11 +22,11 @@ def generate_frames():
             frame = cv2.flip(frame, 1)
             # 프레임을 JPEG 형식으로 인코딩
             ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
+            frame_ = buffer.tobytes()
 
             # 멀티파트 메시지 형식으로 프레임 생성
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_ + b'\r\n')
 
 app = Flask(__name__)
 
@@ -62,18 +68,46 @@ def home():
     return render_template('index.html')
 
 @app.route("/photo")
-def capture():
+def photo():
+    global save
+    i = 1
+    while os.path.exists(os.path.join(base, str(i))):
+        i += 1
+    save = os.path.join(base, str(i))
     return render_template("photo.html")
 
 @app.route('/video')
 def video():
     # 비디오 스트리밍을 위한 Response 객체 생성
-    return Response(generate_frames(), 
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/capture')
+def capture():
+    global save, ret, frame
+    os.makedirs(save, exist_ok=True)
+
+    i = 1
+    if i >= 9:
+        return jsonify(status="ok", file=filename, signal="done")
+    filename = f"capture{i}.jpg"
+    while os.path.exists(os.path.join(save, filename)):
+        i += 1
+        filename = f"capture{i}.jpg"
+
+    if ret:
+        cv2.imwrite(os.path.join(save, filename), frame)
+        return jsonify(status="ok", file=filename)
+
+    return jsonify(status="no frame"), 500
 
 @app.route('/select') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def select():
-    return render_template('select.html')
+    global save
+    files = sorted(
+        [f for f in os.listdir(save) if os.path.isfile(os.path.join(save, f))]
+    )
+    folder_rel = os.path.relpath(save, app.root_path).replace(os.sep, '/')
+    return render_template('select.html', folder_rel=folder_rel, files=files) # 예시 뷰 코드
 
 @app.route('/edit') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def edit():

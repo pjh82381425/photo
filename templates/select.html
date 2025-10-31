@@ -12,6 +12,29 @@
 
 <body>
     <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
+        <h1>폴더: {{ folder_rel }}</h1>
+
+        <!-- 파일이 없을 때 -->
+        {% if not files %}
+        <p class="empty">파일이 없습니다.</p>
+        {% else %}
+        <div class="grid">
+            {% for f in files %}
+            {% set file_url = url_for('static', filename=(folder_rel.split('static/', 1)[1] ~ '/' ~ f))
+            if folder_rel.startswith('static/')
+            else '/' ~ folder_rel ~ '/' ~ f %}
+            <a class="card" href="{{ file_url }}" target="_blank" rel="noopener">
+                {# 이미지일 가능성이 높으면 썸네일 표시, 아니면 아이콘 대체 #}
+                {% if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')) %}
+                <img class="thumb" src="{{ file_url }}" alt="{{ f }}">
+                {% else %}
+                <div class="thumb" aria-hidden="true"></div>
+                {% endif %}
+                <div class="name">{{ f }}</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
         <section class="hero" aria-labelledby="hero-title">
             <div class="logo">
                 <button class="select" id="selectBtn" aria-label="선택완료">

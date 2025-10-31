@@ -24,14 +24,6 @@
 </html>
 
 <script>
-    // 페이지 로드 시 페이드인
-    window.addEventListener('load', () => document.body.classList.add('loaded'));
-
-    // 뒤로가기 시 복원
-    window.addEventListener('pageshow', (e) => {
-        if (e.persisted) document.body.classList.add('loaded');
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
         // 적용하기 버튼
         const btn = document.getElementById('editBtn');

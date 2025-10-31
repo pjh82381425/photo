@@ -31,30 +31,66 @@
 </html>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const photoBtn = document.getElementById('photoBtn');
-        if (photoBtn) {
-            let isNavigating = false;
+  function triggerResultTransition() {
+    const btn = document.getElementById('editBtn');
 
-            photoBtn.addEventListener('click', e => {
-                if (isNavigating) return;
-                isNavigating = true;
-                e.preventDefault();
+    if (btn) {
+      btn.classList.add('processing');
+      btn.setAttribute('disabled', 'true');
+      const label = btn.querySelector('.label');
+      if (label) label.textContent = '적용 중...';
+    }
 
-                document.body.classList.remove('loaded');
-                document.body.getBoundingClientRect(); // 리플로우
-                document.body.classList.add('fade-out');
+    document.body.classList.remove('loaded');
+    document.body.getBoundingClientRect(); // 리플로우
+    document.body.classList.add('fade-out');
 
-                const go = () => window.location.href = '/select';
+    const go = () => window.location.href = '/select';
+    const onEnd = (ev) => {
+      if (ev.target === document.body && ev.propertyName === 'opacity') {
+        document.body.removeEventListener('transitionend', onEnd);
+        go();
+      }
+    };
+    document.body.addEventListener('transitionend', onEnd);
+  }
 
-                const onEnd = ev => {
-                    if (ev.target === document.body && ev.propertyName === 'opacity') {
-                        document.body.removeEventListener('transitionend', onEnd);
-                        go();
-                    }
-                };
-                document.body.addEventListener('transitionend', onEnd);
-            });
+  document.addEventListener('DOMContentLoaded', () => {
+    const photoBtn = document.getElementById('photoBtn');
+
+    photoBtn?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (photoBtn.disabled) return;
+      photoBtn.disabled = true;
+
+      try {
+        const res = await fetch('/capture', { method: 'GET', cache: 'no-store' });
+        if (!res.ok) {
+          console.error('캡처 실패:', res.status);
+          return;
         }
+
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const data = await res.json();
+          console.log('캡처 결과:', data);
+
+          if (data.signal === 'done' || data.i === 7 || /capture7\.jpg$/.test(data.file || '')) {
+            triggerResultTransition();
+          }
+        } else {
+          const text = await res.text();
+          console.log('캡처 결과:', text);
+
+          if (text.trim().toLowerCase() === 'done') {
+            triggerResultTransition();
+          }
+        }
+      } catch (err) {
+        console.error('캡쳐 에러:', err);
+      } finally {
+        photoBtn.disabled = false;
+      }
     });
+  });
 </script>
