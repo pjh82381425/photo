@@ -15,8 +15,9 @@
         <section class="hero" aria-labelledby="hero-title">
             <div class="logo">
                 <img src="/video" width="640" height="480">
-                <button class="start" id="startBtn" aria-label="시작하기">
-                    <span class="label">촬영완료</span>
+                <button class="photo" id="photoBtn" aria-label="촬영">
+                    <!-- 파이썬 통한 물리 버튼으로 교체 -->
+                    <span class="label">촬영</span>
                     <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" />
@@ -31,12 +32,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // 시작하기 버튼
-        const startBtn = document.getElementById('startBtn');
-        if (startBtn) {
+        const photoBtn = document.getElementById('photoBtn');
+        if (photoBtn) {
             let isNavigating = false;
 
-            startBtn.addEventListener('click', e => {
+            photoBtn.addEventListener('click', e => {
                 if (isNavigating) return;
                 isNavigating = true;
                 e.preventDefault();

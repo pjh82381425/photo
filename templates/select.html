@@ -14,7 +14,7 @@
     <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
         <section class="hero" aria-labelledby="hero-title">
             <div class="logo">
-                <button class="start" id="startBtn" aria-label="선택하기">
+                <button class="select" id="selectBtn" aria-label="선택완료">
                     <span class="label">선택완료</span>
                     <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -30,12 +30,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // 시작하기 버튼
-        const startBtn = document.getElementById('startBtn');
-        if (startBtn) {
+        const selectBtn = document.getElementById('selectBtn');
+        if (selectBtn) {
             let isNavigating = false;
 
-            startBtn.addEventListener('click', e => {
+            selectBtn.addEventListener('click', e => {
                 if (isNavigating) return;
                 isNavigating = true;
                 e.preventDefault();
