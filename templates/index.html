@@ -1,0 +1,62 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='function.js') }}"></script>
+
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PHOTOISM</title>
+</head>
+
+<body>
+    <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="logo">
+                <h1 id="hero-title">PHOTOISM</h1>
+                <p>포토부스 · 셀프 스튜디오</p>
+                <button class="start" id="startBtn" aria-label="시작하기">
+                    <span class="label">촬영하기</span>
+                    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="hint">버튼을 클릭하여 촬영을 시작하세요</div>
+        </section>
+    </div>
+</body>
+
+</html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 시작하기 버튼
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) {
+            let isNavigating = false;
+
+            startBtn.addEventListener('click', e => {
+                if (isNavigating) return;
+                isNavigating = true;
+                e.preventDefault();
+
+                document.body.classList.remove('loaded');
+                document.body.getBoundingClientRect(); // 리플로우
+                document.body.classList.add('fade-out');
+
+                const go = () => window.location.href = '/photo';
+
+                const onEnd = ev => {
+                    if (ev.target === document.body && ev.propertyName === 'opacity') {
+                        document.body.removeEventListener('transitionend', onEnd);
+                        go();
+                    }
+                };
+                document.body.addEventListener('transitionend', onEnd);
+            });
+        }
+    });
+</script>

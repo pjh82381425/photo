@@ -1,0 +1,68 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='function.js') }}"></script>
+
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PHOTOISM</title>
+</head>
+
+<body>
+    <button class="edit" id="editBtn" aria-label="적용하기">
+        <span class="label">적용하기</span>
+        <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+        <span class="spinner" aria-hidden="true"></span>
+    </button>
+</body>
+
+</html>
+
+<script>
+    // 페이지 로드 시 페이드인
+    window.addEventListener('load', () => document.body.classList.add('loaded'));
+
+    // 뒤로가기 시 복원
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) document.body.classList.add('loaded');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 적용하기 버튼
+        const btn = document.getElementById('editBtn');
+        if (btn) {
+            let processing = false;
+
+            btn.addEventListener('click', e => {
+                if (processing) return;
+                processing = true;
+                e.preventDefault();
+
+                // 버튼 상태 변경
+                btn.classList.add('processing');
+                btn.setAttribute('disabled', 'true');
+                btn.querySelector('.label').textContent = '적용 중...';
+
+                // 페이드아웃 시작
+                document.body.classList.remove('loaded');
+                document.body.getBoundingClientRect(); // 리플로우
+                document.body.classList.add('fade-out');
+
+                // 전환이 끝나면 다음 페이지로 이동 (예: /result)
+                const go = () => window.location.href = '/result';
+                const onEnd = ev => {
+                    if (ev.target === document.body && ev.propertyName === 'opacity') {
+                        document.body.removeEventListener('transitionend', onEnd);
+                        go();
+                    }
+                };
+                document.body.addEventListener('transitionend', onEnd);
+            });
+        }
+    });
+</script>
