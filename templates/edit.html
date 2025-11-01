@@ -16,10 +16,23 @@
         <div id="grid" class="preview-area">
             {% for p in selected_photo_filenames %}
             <div class="item">
-                <img src="{{ url_for('view_captures', filename=p) }}" alt="selected photo {{ loop.index }}">
+                <img src="{{ url_for('view_captures', filename=p) }}" alt="선택된 사진 {{ loop.index }}">
             </div>
             {% endfor %}
         </div>
+        <p>원본</p>
+    </section>
+
+    <!-- 편집된 사진 미리보기 -->
+    <section class="edited-photo" aria-label="편집된 사진 미리보기">
+        <div id="grid" class="preview-area">
+            <!-- {% for p in selected_photo_filenames %} -->
+            <div class="item">
+                <img src="" alt="편집된 사진">
+            </div>
+            <!-- {% endfor %} -->
+        </div>
+        <p>{} 스타일 적용</p>
     </section>
 
     <!-- 적용 버튼(필요 시 주석 해제) -->
@@ -120,6 +133,11 @@
         to {
             transform: rotate(360deg);
         }
+    }
+
+    .selected-photo, .edited-photo {
+        display: grid;
+        justify-items: center;
     }
 </style>
 
