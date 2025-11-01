@@ -11,25 +11,28 @@
 </head>
 
 <body>
-    <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
-        <section class="hero" aria-labelledby="hero-title">
+    <div class="kiosk">
+        <section class="hero">
+
             <div id="grid" class="grid">
                 {% for f in files %}
-                <button type="button" class="item" data-id="{{ loop.index }}">
+                <div class="item" data-id="{{ loop.index }}">
                     <img src="/{{ folder_rel }}/{{ f }}" alt="capture {{ loop.index }}">
-                </button>
+                </div>
                 {% endfor %}
             </div>
-            <section class="photo-list" id="photoList"></section>
+
             <div class="logo">
-                <button class="select" id="selectBtn" aria-label="선택완료">
-                    <span class="label">선택완료</span>
-                    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <button class="select" id="selectBtn">
+                    <span class="label">선택 완료</span>
+                    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" />
                     </svg>
                 </button>
+                <div class="hint">사진 4장을 선택해주세요</div>
             </div>
+
         </section>
     </div>
 </body>

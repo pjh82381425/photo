@@ -11,26 +11,39 @@
 </head>
 
 <body>
-  <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="logo">
-        <img src="/video" width="640" height="480">
-        <button class="photo" id="photoBtn" aria-label="촬영">
-          <!-- 파이썬 통한 물리 버튼으로 교체 -->
-          <span class="label">촬영<div id="count"></div></span>
-          <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </button>
-      </div>
-    </section>
-  </div>
+  <section class="photobox">
+    <img class="cambox" src="/video" width="1280" height="720">
+    <button class="photobtn" id="photoBtn" aria-label="촬영">
+      <!-- 파이썬 통한 물리 버튼으로 교체 -->
+      <span class="label">촬영<div id="count"></div></span>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+    </button>
+    </div>
+  </section>
 </body>
 
 </html>
 
 <style>
+  .photobox {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .cambox {
+    border-radius: 12px;
+  }
+
+  .photobtn {
+    margin: 12px;
+    justify-content: center;
+  }
+
   .flash-effect {
     position: fixed;
     inset: 0;

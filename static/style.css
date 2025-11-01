@@ -26,7 +26,7 @@ body.fade-out { opacity: 0; }        /* 페이드아웃 */
 .hint { margin-top: 24px; color: #777; font-size: 14px; }
 
 /* 버튼 */
-.photo,
+.photobtn,
 .edit,
 .select,
 .start{
@@ -37,14 +37,14 @@ body.fade-out { opacity: 0; }        /* 페이드아웃 */
   cursor:pointer;
   transition: background-color .2s, box-shadow .3s;
 }
-.photo:hover,
+.photobtn:hover,
 .edit:hover,
 .select:hover,
 .start:hover{
   background-color:#1f2937;
   box-shadow:0 12px 20px rgba(0,0,0,.15);
 }
-.photo:active,
+.photobtn:active,
 .edit:active,
 .select:active,
 .start:active{ background-color:#374151; }

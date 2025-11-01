@@ -135,7 +135,13 @@ def delete_photo(item_id):
 
 @app.route('/edit')
 def edit():
-    return render_template('edit.html')
+    global save, selected_photo
+    selected_photo_filenames = [f"capture{i}.jpg" for i in selected_photo]
+    return render_template('edit.html', selected_photo_filenames=selected_photo_filenames)
+    
+@app.route('/view_captures/<path:filename>')
+def view_captures(filename):
+    return send_from_directory(save, filename)
 
 @app.route('/result')
 def result():
