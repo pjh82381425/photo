@@ -5,27 +5,27 @@
 <html lang="ko">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PHOTOISM</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PHOTOISM</title>
 </head>
 
 <body>
-    <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
-        <section class="hero" aria-labelledby="hero-title">
-            <div class="logo">
-                <img src="/video" width="640" height="480">
-                <button class="photo" id="photoBtn" aria-label="촬영">
-                    <!-- 파이썬 통한 물리 버튼으로 교체 -->
-                    <span class="label">촬영</span>
-                    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </button>
-            </div>
-        </section>
-    </div>
+  <div class="kiosk" role="application" aria-label="포토이즘 키오스크 첫 화면">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="logo">
+        <img src="/video" width="640" height="480">
+        <button class="photo" id="photoBtn" aria-label="촬영">
+          <!-- 파이썬 통한 물리 버튼으로 교체 -->
+          <span class="label">촬영</span>
+          <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </section>
+  </div>
 </body>
 
 </html>
@@ -64,30 +64,11 @@
       photoBtn.disabled = true;
 
       try {
-        const res = await fetch('/capture', { method: 'GET', cache: 'no-store' });
-        if (!res.ok) {
-          console.error('캡처 실패:', res.status);
-          return;
-        }
-
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('application/json')) {
-          const data = await res.json();
-          console.log('캡처 결과:', data);
-
-          if (data.signal === 'done' || data.i === 7 || /capture7\.jpg$/.test(data.file || '')) {
-            triggerResultTransition();
-          }
-        } else {
-          const text = await res.text();
-          console.log('캡처 결과:', text);
-
-          if (text.trim().toLowerCase() === 'done') {
-            triggerResultTransition();
-          }
-        }
-      } catch (err) {
-        console.error('캡쳐 에러:', err);
+        const r = await fetch('/capture', { method: 'GET', cache: 'no-store' });
+        const t = await r.text();
+        if (t.trim() === 'done') triggerResultTransition();
+      } catch (e) {
+        console.error(e);
       } finally {
         photoBtn.disabled = false;
       }

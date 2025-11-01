@@ -7,6 +7,7 @@ app = Flask(__name__)
 base = os.path.join(app.root_path, "static", "captures")
 os.makedirs(base, exist_ok=True)
 save, ret, frame = None, None, None
+selected_photo = []
 
 def generate_frames():
     global ret, frame
@@ -69,7 +70,8 @@ def home():
 
 @app.route("/photo")
 def photo():
-    global save
+    global save, selected_photo
+    selected_photo = []
     i = 1
     while os.path.exists(os.path.join(base, str(i))):
         i += 1
@@ -81,24 +83,18 @@ def video():
     # 비디오 스트리밍을 위한 Response 객체 생성
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/capture')
+@app.route('/capture', methods=['GET'])
 def capture():
     global save, ret, frame
     os.makedirs(save, exist_ok=True)
+    if not ret:
+        return "err", 500
 
-    i = 1
-    if i >= 9:
-        return jsonify(status="ok", file=filename, signal="done")
+    i = len([f for f in os.listdir(save) if f.startswith('cap')]) + 1
     filename = f"capture{i}.jpg"
-    while os.path.exists(os.path.join(save, filename)):
-        i += 1
-        filename = f"capture{i}.jpg"
-
-    if ret:
-        cv2.imwrite(os.path.join(save, filename), frame)
-        return jsonify(status="ok", file=filename)
-
-    return jsonify(status="no frame"), 500
+    cv2.imwrite(os.path.join(save, filename), frame)
+    print(f'{save}/{filename} 이 촬영됨')
+    return ("done" if i >= 8 else "ok")
 
 @app.route('/select') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def select():
@@ -108,6 +104,34 @@ def select():
     )
     folder_rel = os.path.relpath(save, app.root_path).replace(os.sep, '/')
     return render_template('select.html', folder_rel=folder_rel, files=files) # 예시 뷰 코드
+
+@app.route('/select/<int:item_id>', methods=['POST'])
+def select_photo(item_id):
+    global save, selected_photo
+    files = sorted([f for f in os.listdir(save) if os.path.isfile(os.path.join(save, f))])
+    if not 1 <= item_id <= len(files):
+        return jsonify(status="error"), 400
+
+    if save not in selected_photo:
+        if item_id not in selected_photo:
+            selected_photo.append(item_id)
+            print(f'{save}/capture{item_id}.jpg 선택')
+            print(f'현재 선택된 사진: {selected_photo}')
+    return jsonify(status="ok", id=item_id)
+
+@app.route('/delete/<int:item_id>', methods=['POST'])
+def delete_photo(item_id):
+    global save, selected_photo
+    files = sorted([f for f in os.listdir(save) if os.path.isfile(os.path.join(save, f))])
+    if not 1 <= item_id <= len(files):
+        return jsonify(status="error"), 400
+    
+    if save not in selected_photo:
+        if item_id in selected_photo:
+            selected_photo.remove(item_id)
+            print(f'{save}/capture{item_id}.jpg 선택 취소됨')
+            print(f'현재 선택된 사진: {selected_photo}')
+    return jsonify(status="ok", id=item_id)
 
 @app.route('/edit') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
 def edit():
