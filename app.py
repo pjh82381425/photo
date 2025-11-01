@@ -94,9 +94,9 @@ def capture():
     filename = f"capture{i}.jpg"
     cv2.imwrite(os.path.join(save, filename), frame)
     print(f'{save}/{filename} 이 촬영됨')
-    return ("done" if i >= 8 else "ok")
+    return ("ok")
 
-@app.route('/select') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
+@app.route('/select')
 def select():
     global save
     files = sorted(
@@ -133,11 +133,11 @@ def delete_photo(item_id):
             print(f'현재 선택된 사진: {selected_photo}')
     return jsonify(status="ok", id=item_id)
 
-@app.route('/edit') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
+@app.route('/edit')
 def edit():
     return render_template('edit.html')
 
-@app.route('/result') # 위의 주석 처리된 예시 코드로 보안관련 수정 필요함
+@app.route('/result')
 def result():
     return render_template('result.html')
 

@@ -17,7 +17,7 @@
         <img src="/video" width="640" height="480">
         <button class="photo" id="photoBtn" aria-label="촬영">
           <!-- 파이썬 통한 물리 버튼으로 교체 -->
-          <span class="label">촬영</span>
+          <span class="label">촬영<div id="count"></div></span>
           <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
@@ -30,7 +30,36 @@
 
 </html>
 
+<style>
+  .flash-effect {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 1;
+    pointer-events: none;
+    animation: flashAnim 0.3s ease-out forwards;
+  }
+
+  @keyframes flashAnim {
+    0% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
+
 <script>
+  function screenFlash() {
+    const flash = document.createElement('div');
+    flash.className = 'flash-effect';
+    document.body.appendChild(flash);
+
+    setTimeout(() => flash.remove(), 300); // 애니메이션 후 제거
+  }
+
   function triggerResultTransition() {
     const btn = document.getElementById('editBtn');
 
@@ -45,7 +74,7 @@
     document.body.getBoundingClientRect(); // 리플로우
     document.body.classList.add('fade-out');
 
-    const go = () => window.location.href = '/select';
+    const go = () => (window.location.href = '/select');
     const onEnd = (ev) => {
       if (ev.target === document.body && ev.propertyName === 'opacity') {
         document.body.removeEventListener('transitionend', onEnd);
@@ -57,20 +86,52 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     const photoBtn = document.getElementById('photoBtn');
+    const countEl = document.getElementById('count');
 
-    photoBtn?.addEventListener('click', async (e) => {
+    // 설정값
+    const MAX_SHOTS = 8;
+
+    // 상태값
+    let shotCount = 0;     // 촬영된 장 수(클라이언트 기준)
+    let isCapturing = false; // 중복 요청 방지 플래그
+
+    if (!photoBtn || photoBtn.dataset.bound === '1') return;
+    photoBtn.dataset.bound = '1';
+
+    if (countEl) countEl.textContent = `${shotCount}/${MAX_SHOTS}`;
+
+    photoBtn.addEventListener('click', async (e) => {
       e.preventDefault();
-      if (photoBtn.disabled) return;
+
+      if (photoBtn.disabled || isCapturing) return;
+      isCapturing = true;
       photoBtn.disabled = true;
 
       try {
-        const r = await fetch('/capture', { method: 'GET', cache: 'no-store' });
-        const t = await r.text();
-        if (t.trim() === 'done') triggerResultTransition();
-      } catch (e) {
-        console.error(e);
+        const r = await fetch(`/capture?_=${Date.now()}`, { method: 'GET', cache: 'no-store' });
+        const t = (await r.text()).trim();
+
+        if (t === 'ok') {
+          screenFlash();
+          shotCount += 1;
+          if (countEl) countEl.textContent = `${shotCount}/${MAX_SHOTS}`;
+
+          if (shotCount >= MAX_SHOTS) {
+            photoBtn.setAttribute('disabled', 'true');
+            photoBtn.classList.add('processing');
+            triggerResultTransition();
+            return;
+          }
+        } else {
+          console.error('Unexpected /capture response:', t);
+        }
+      } catch (err) {
+        console.error('Capture request failed:', err);
       } finally {
-        photoBtn.disabled = false;
+        if (shotCount < MAX_SHOTS) {
+          photoBtn.disabled = false;
+          isCapturing = false;
+        }
       }
     });
   });
